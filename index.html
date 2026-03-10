@@ -6,6 +6,7 @@
 <title>BIAT — ESG Assessment v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --navy: #264676;
@@ -1474,61 +1475,50 @@ function showPage(page) {
 }
 
 // ═══ START ═══
-async function startQuestionnaire() {
-  const prenom = document.getElementById('f-prenom').value.trim();
-  const nom = document.getElementById('f-nom').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const company = document.getElementById('f-company').value.trim();
-  const sector = document.getElementById('f-sector').value;
-  if (!prenom || !nom || !email || !company || !sector) { alert('Merci de remplir tous les champs obligatoires.'); return; }
+// ═══ SUPABASE ═══
+  const SUPABASE_URL = 'https://hjcvjnldhfouuynlaqbx.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqY3ZqbmxkaGZvdXV5bmxhcWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMzk1MjMsImV4cCI6MjA4ODcxNTUyM30.gjBUIuRulmuL2FYy6PnCqUANaVlbIYbZRL9BHTcksVU';
+  let _supabase = null;
+  try { _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.warn('Supabase init failed', e); }
 
-  const btn = document.querySelector('.btn-next');
-  const originalHTML = btn.innerHTML;
-  btn.innerHTML = '<span class="loading-spinner"></span> Chargement...';
-  btn.disabled = true;
+  // ═══ START ═══
+  async function startQuestionnaire() {
+    const prenom = document.getElementById('f-prenom').value.trim();
+    const nom = document.getElementById('f-nom').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const company = document.getElementById('f-company').value.trim();
+    const sector = document.getElementById('f-sector').value;
+    if (!prenom || !nom || !email || !company || !sector) {
+      alert('Merci de remplir tous les champs obligatoires.');
+      return;
+    }
+    userInfo = {
+      prenom, nom, email, company, sector,
+      size: document.getElementById('f-size').value,
+      poste: document.getElementById('f-poste').value,
+      date: new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' }),
+      timestamp: new Date().toISOString()
+    };
+    if (_supabase) {
+      try {
+        const { data, error } = await _supabase.from('leads').insert([{
+          prenom: userInfo.prenom, nom: userInfo.nom, email: userInfo.email,
+          company: userInfo.company, sector: userInfo.sector,
+          size: userInfo.size, poste: userInfo.poste, timestamp: userInfo.timestamp
+        }]).select();
+        if (error) console.error('Lead error:', error);
+        else if (data && data[0]) userInfo.lead_id = data[0].id;
+      } catch(err) { console.error('Lead failed:', err); }
+    }
+    buildProgressBar();
+    buildSidebar();
+    buildQuestionnaire();
+    showPage('questionnaire');
+    updateProgress();
+    setTimeout(() => { activateQuestion(0); setupScrollObserver(); }, 300);
+  }
 
-  userInfo = {
-    prenom, nom, email, company, sector,
-    size: document.getElementById('f-size').value,
-    poste: document.getElementById('f-poste').value,
-    date: new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' }),
-    timestamp: new Date().toISOString()
-  };
 
-  // Save lead to Supabase
-  try {
-    const { data, error } = await _supabase.from('leads').insert([{
-      prenom: userInfo.prenom, nom: userInfo.nom, email: userInfo.email,
-      company: userInfo.company, sector: userInfo.sector,
-      size: userInfo.size, poste: userInfo.poste, timestamp: userInfo.timestamp
-    }]).select();
-    if (error) console.error('Supabase lead error:', error);
-    else if (data && data[0]) userInfo.lead_id = data[0].id;
-  } catch(err) { console.error('Supabase error:', err); }
-
-  btn.innerHTML = originalHTML;
-  btn.disabled = false;
-
-  buildProgressBar();
-  buildSidebar();
-  buildQuestionnaire();
-  showPage('questionnaire');
-  updateProgress();
-  setTimeout(() => {
-    activateQuestion(0);
-    setupScrollObserver();
-  }, 300);
-};
-  buildProgressBar();
-  buildSidebar();
-  buildQuestionnaire();
-  showPage('questionnaire');
-  updateProgress();
-  setTimeout(() => {
-    activateQuestion(0);
-    setupScrollObserver();
-  }, 300);
-}
 
 // ═══ BUILD PROGRESS BAR ═══
 function buildProgressBar() {
@@ -1829,10 +1819,43 @@ function computeScores() {
 }
 
 // ═══ DASHBOARD ═══
-async function generateDashboard() {
-  const scores = computeScores();
-  await saveResponsesToSupabase(scores);
-  const sector = userInfo.sector || 'autre';
+// ═══ SAVE RESPONSES ═══
+  async function saveResponsesToSupabase(scores) {
+    if (!_supabase) return;
+    try {
+      const rows = questions.map((q, i) => {
+        const ans = answers[i];
+        let answerText = 'Non répondu';
+        if (ans !== undefined) {
+          if (q.type === 'qcm') answerText = q.options[ans] || String(ans);
+          else if (q.type === 'scale') answerText = ans + '/5';
+          else answerText = String(ans);
+        }
+        return {
+          lead_id: userInfo.lead_id || null,
+          lead_email: userInfo.email,
+          lead_company: userInfo.company,
+          question_id: q.id,
+          question_text: q.text,
+          pillar: q.pillar,
+          sub_category: q.sub,
+          answer_raw: ans !== undefined ? String(ans) : null,
+          answer_text: answerText,
+          score_e: scores.E, score_s: scores.S, score_g: scores.G,
+          score_global: scores.global,
+          timestamp: userInfo.timestamp
+        };
+      });
+      const { error } = await _supabase.from('responses').insert(rows);
+      if (error) console.error('Responses error:', error);
+      else console.log('Reponses sauvegardees');
+    } catch(err) { console.error('Responses failed:', err); }
+  }
+
+  // ═══ DASHBOARD ═══
+  async function generateDashboard() {
+    const scores = computeScores();
+    await saveResponsesToSupabase(scores);  const sector = userInfo.sector || 'autre';
   const benchmark = sectorBenchmarks[sector] || sectorBenchmarks.autre;
 
   document.getElementById('dash-user-name').innerText = `${userInfo.prenom} ${userInfo.nom}`;
@@ -1890,7 +1913,8 @@ async function generateDashboard() {
   buildRecommendations(scores);
   showPage('dashboard');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+
+  }
 
 function buildSectorComparison(scores, benchmark) {
   const container = document.getElementById('sector-comparison-content');
