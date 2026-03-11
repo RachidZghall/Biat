@@ -6,7 +6,6 @@
 <title>BIAT — ESG Assessment v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --navy: #264676;
@@ -174,45 +173,183 @@
     to { opacity: 1; transform: scale(1); }
   }
 
-  /* ─── IDENTIFICATION ─── */
+  /* ─── IDENTIFICATION — SPLIT LAYOUT ─── */
   #page-identification {
-    min-height: 100vh; display: none; align-items: center; justify-content: center;
-    background: var(--gray-50); padding: 40px 24px;
+    min-height: 100vh; display: none;
+    background: var(--white);
   }
   #page-identification.active { display: flex; }
-  .id-card {
-    background: var(--white); border-radius: 24px; box-shadow: var(--shadow-lg);
-    padding: 48px; width: 100%; max-width: 520px;
+
+  .id-split {
+    display: flex; width: 100%; min-height: 100vh;
   }
-  .id-header { margin-bottom: 32px; text-align: center; }
-  .id-icon {
-    width: 56px; height: 56px;
-    background: linear-gradient(135deg, var(--navy), var(--navy-light));
-    border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 14px;
+
+  /* LEFT — Form */
+  .id-left {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    padding: 48px 56px; max-width: 580px; position: relative;
+    animation: fadeInUp 0.6s ease 0.1s both;
   }
-  .id-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 6px; }
-  .id-subtitle { font-size: 0.88rem; color: var(--gray-400); }
-  .form-group { margin-bottom: 18px; }
-  .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--navy); margin-bottom: 6px; letter-spacing: 0.03em; text-transform: uppercase; }
-  .form-input, .form-select {
-    width: 100%; padding: 12px 14px; border: 2px solid var(--gray-200);
-    border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
-    font-size: 0.92rem; color: var(--gray-800); background: var(--white);
-    transition: var(--transition); outline: none;
+  .id-left-brand {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 40px;
   }
-  .form-input:focus, .form-select:focus { border-color: var(--navy); box-shadow: 0 0 0 4px rgba(38,70,118,0.08); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .btn-next {
-    width: 100%; background: linear-gradient(135deg, var(--navy), var(--navy-light));
-    color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
-    padding: 15px; border-radius: var(--radius-sm); border: none; cursor: pointer;
-    transition: var(--transition); margin-top: 8px;
+  .id-left-brand img { height: 36px; border-radius: 6px; }
+  .id-left-brand-text {
+    font-family: 'Playfair Display', serif; font-weight: 600;
+    font-size: 0.95rem; color: var(--navy);
+  }
+  .id-left h2 {
+    font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;
+    color: var(--navy-dark); line-height: 1.2; margin-bottom: 6px;
+  }
+  .id-left h2 span { color: var(--gold); }
+  .id-left-sub {
+    font-size: 0.92rem; color: var(--gray-400); margin-bottom: 32px; line-height: 1.6;
+  }
+
+  .id-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
+  .id-form-grid .span-2 { grid-column: 1 / -1; }
+
+  .field-wrap { position: relative; }
+  .field-wrap label {
+    display: block; font-size: 0.72rem; font-weight: 700; color: var(--navy);
+    letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .field-wrap input, .field-wrap select {
+    width: 100%; padding: 13px 14px 13px 42px; border: 1.5px solid var(--gray-200);
+    border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    color: var(--gray-800); background: var(--gray-50); transition: var(--transition); outline: none;
+  }
+  .field-wrap select { padding-left: 42px; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  .field-wrap input:focus, .field-wrap select:focus {
+    border-color: var(--navy); background: var(--white);
+    box-shadow: 0 0 0 4px rgba(38,70,118,0.06);
+  }
+  .field-icon {
+    position: absolute; left: 14px; top: 34px; width: 18px; height: 18px;
+    color: var(--gray-400); pointer-events: none;
+  }
+
+  .btn-start-form {
+    grid-column: 1 / -1; margin-top: 8px;
     display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+    color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+    padding: 16px 28px; border-radius: 14px; border: none; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(38,70,118,0.3); transition: var(--transition);
+    position: relative; overflow: hidden;
   }
-  .btn-next:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-  .back-link { display: block; text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--gray-400); cursor: pointer; transition: var(--transition); }
-  .back-link:hover { color: var(--navy); }
+  .btn-start-form::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+    transform: translateX(-100%); transition: transform 0.6s ease;
+  }
+  .btn-start-form:hover::before { transform: translateX(100%); }
+  .btn-start-form:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(38,70,118,0.4); }
+  .btn-start-form svg { transition: transform 0.3s ease; }
+  .btn-start-form:hover svg { transform: translateX(4px); }
+
+  .id-back-link {
+    grid-column: 1 / -1; text-align: center; font-size: 0.82rem;
+    color: var(--gray-400); cursor: pointer; transition: var(--transition);
+    padding-top: 4px;
+  }
+  .id-back-link:hover { color: var(--navy); }
+
+  .id-secure-row {
+    grid-column: 1 / -1; display: flex; align-items: center; justify-content: center;
+    gap: 16px; padding-top: 8px;
+  }
+  .id-secure-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.7rem; color: var(--gray-400);
+  }
+  .id-secure-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* RIGHT — ESG Visual Panel */
+  .id-right {
+    flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: linear-gradient(160deg, var(--navy-dark) 0%, #1e3a5f 40%, #264676 100%);
+    position: relative; overflow: hidden; min-height: 100vh;
+  }
+  .id-right-pattern {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 70% 20%, rgba(211,131,35,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 20% 80%, rgba(58,170,110,0.08) 0%, transparent 50%);
+  }
+  .id-right-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* ESG Carousel */
+  .esg-carousel {
+    position: relative; z-index: 2; width: 85%; max-width: 420px;
+  }
+  .esg-slide {
+    display: none; flex-direction: column; align-items: center; text-align: center;
+    animation: slideIn 0.6s ease both;
+  }
+  .esg-slide.active-slide { display: flex; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .esg-slide-icon {
+    width: 100px; height: 100px; border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem; margin-bottom: 28px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
+  .esg-slide-title {
+    font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700;
+    color: var(--white); margin-bottom: 12px;
+  }
+  .esg-slide-desc {
+    font-size: 0.95rem; color: rgba(255,255,255,0.65); line-height: 1.7;
+    max-width: 340px; margin-bottom: 32px;
+  }
+  .esg-slide-stats {
+    display: flex; gap: 32px;
+  }
+  .esg-stat {
+    text-align: center;
+  }
+  .esg-stat-num {
+    font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700;
+    color: var(--white);
+  }
+  .esg-stat-label {
+    font-size: 0.7rem; color: rgba(255,255,255,0.45);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;
+  }
+
+  /* Dots */
+  .esg-carousel-dots {
+    display: flex; gap: 10px; justify-content: center; margin-top: 36px;
+    position: relative; z-index: 2;
+  }
+  .esg-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.2); cursor: pointer;
+    transition: var(--transition); border: none;
+  }
+  .esg-dot.active-dot { background: var(--gold); width: 28px; border-radius: 99px; }
+
+  @media (max-width: 900px) {
+    .id-split { flex-direction: column-reverse; }
+    .id-left { max-width: 100%; padding: 32px 24px; }
+    .id-right { min-height: 40vh; }
+  }
 
   /* ─── QUESTIONNAIRE LAYOUT ─── */
   #page-questionnaire {
@@ -556,6 +693,33 @@
   .reco-icon { font-size: 1.2rem; flex-shrink: 0; }
   .reco-text { font-size: 0.88rem; line-height: 1.6; color: var(--gray-600); }
 
+  /* Google Sheets Banner */
+  .gs-banner {
+    display: flex; align-items: center; gap: 14px; padding: 14px 20px;
+    border-radius: 12px; margin-bottom: 20px; border: 1.5px solid var(--gray-200);
+    background: var(--gray-50); transition: var(--transition);
+  }
+  .gs-banner.connected { border-color: #6ee7b7; background: #ecfdf5; }
+  .gs-banner.error { border-color: #fca5a5; background: #fef2f2; }
+  .gs-banner-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .gs-banner-title { font-size: 0.85rem; font-weight: 600; color: var(--navy-dark); }
+  .gs-banner-sub { font-size: 0.75rem; color: var(--gray-400); word-break: break-all; }
+
+  .gs-status-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 18px; border-radius: 99px; font-size: 0.8rem; font-weight: 600;
+    transition: var(--transition);
+  }
+  .gs-status-badge.pending { background: #fef3c7; color: #92400e; }
+  .gs-status-badge.success { background: #ecfdf5; color: #065f46; }
+  .gs-status-badge.error { background: #fef2f2; color: #991b1b; }
+  .badge-spinner {
+    width: 14px; height: 14px; border: 2px solid currentColor;
+    border-top-color: transparent; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   /* ─── RESPONSIVE ─── */
   @media (max-width: 900px) {
     .q-sidebar { width: 60px; padding: 8px 0; }
@@ -644,57 +808,139 @@
   </div>
 </div>
 
-<!-- ═══ IDENTIFICATION ═══ -->
+<!-- ═══ IDENTIFICATION — SPLIT LAYOUT ═══ -->
 <div id="page-identification">
-  <div class="id-card" style="animation: scaleIn 0.4s ease both">
-    <div class="id-header">
-      <div class="id-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  <div class="id-split">
+
+    <!-- LEFT — FORM -->
+    <div class="id-left">
+      <div class="id-left-brand">
+        <img src="https://upload.wikimedia.org/wikipedia/fr/archive/7/74/20250603043408%21Logo_biat_2019.jpg" alt="BIAT">
+        <span class="id-left-brand-text">ESG Assessment</span>
       </div>
-      <h2 class="id-title">Identification</h2>
-      <p class="id-subtitle">Personnalisez votre rapport ESG</p>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Prénom</label><input class="form-input" id="f-prenom" placeholder="Jean" /></div>
-      <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="f-nom" placeholder="Dupont" /></div>
-    </div>
-    <div class="form-group"><label class="form-label">Email professionnel</label><input class="form-input" id="f-email" type="email" placeholder="jean.dupont@entreprise.com" /></div>
-    <div class="form-group"><label class="form-label">Raison sociale</label><input class="form-input" id="f-company" placeholder="Nom de votre entreprise" /></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Secteur</label>
-        <select class="form-select" id="f-sector">
-          <option value="">Sélectionner...</option>
-          <option value="industrie">Industrie manufacturière</option>
-          <option value="finance">Services financiers</option>
-          <option value="commerce">Commerce & Distribution</option>
-          <option value="construction">Construction & Immobilier</option>
-          <option value="transport">Transport & Logistique</option>
-          <option value="agriculture">Agriculture & Agroalimentaire</option>
-          <option value="tech">Technologie & Numérique</option>
-          <option value="sante">Santé & Pharmaceutique</option>
-          <option value="energie">Énergie & Utilities</option>
-          <option value="autre">Autre</option>
-        </select>
+
+      <h2>Commencez votre<br>évaluation <span>ESG</span></h2>
+      <p class="id-left-sub">Renseignez vos informations pour générer un rapport personnalisé et confidentiel.</p>
+
+      <div class="id-form-grid">
+        <div class="field-wrap">
+          <label>Prénom</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input id="f-prenom" placeholder="Jean" />
+        </div>
+        <div class="field-wrap">
+          <label>Nom</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input id="f-nom" placeholder="Dupont" />
+        </div>
+        <div class="field-wrap span-2">
+          <label>Email professionnel</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <input id="f-email" type="email" placeholder="jean.dupont@entreprise.com" />
+        </div>
+        <div class="field-wrap span-2">
+          <label>Raison sociale</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+          <input id="f-company" placeholder="Nom de votre entreprise" />
+        </div>
+        <div class="field-wrap">
+          <label>Secteur d'activité</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <select id="f-sector">
+            <option value="">Sélectionner...</option>
+            <option value="industrie">Industrie manufacturière</option>
+            <option value="finance">Services financiers</option>
+            <option value="commerce">Commerce & Distribution</option>
+            <option value="construction">Construction & Immobilier</option>
+            <option value="transport">Transport & Logistique</option>
+            <option value="agriculture">Agriculture & Agroalimentaire</option>
+            <option value="tech">Technologie & Numérique</option>
+            <option value="sante">Santé & Pharmaceutique</option>
+            <option value="energie">Énergie & Utilities</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <label>Effectif</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <select id="f-size">
+            <option value="">Sélectionner...</option>
+            <option value="micro">Moins de 10</option>
+            <option value="tpe">10 à 49</option>
+            <option value="pme">50 à 249</option>
+            <option value="eti">250 à 999</option>
+            <option value="ge">1 000 et plus</option>
+          </select>
+        </div>
+        <div class="field-wrap span-2">
+          <label>Poste occupé</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>
+          <input id="f-poste" placeholder="Directeur Financier, RSE Manager…" />
+        </div>
+
+        <button class="btn-start-form" onclick="startQuestionnaire()">
+          Démarrer l'évaluation ESG
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="id-secure-row">
+          <div class="id-secure-item"><div class="id-secure-dot" style="background:#3aaa6e"></div>Confidentiel</div>
+          <div class="id-secure-item"><div class="id-secure-dot" style="background:#d38323"></div>~15 min</div>
+          <div class="id-secure-item"><div class="id-secure-dot" style="background:#2e6db4"></div>57 questions</div>
+        </div>
+
+        <span class="id-back-link" onclick="showPage('landing')">← Retour à l'accueil</span>
       </div>
-      <div class="form-group">
-        <label class="form-label">Effectif</label>
-        <select class="form-select" id="f-size">
-          <option value="">Sélectionner...</option>
-          <option value="micro">Moins de 10</option>
-          <option value="tpe">10 à 49</option>
-          <option value="pme">50 à 249</option>
-          <option value="eti">250 à 999</option>
-          <option value="ge">1 000 et plus</option>
-        </select>
+    </div>
+
+    <!-- RIGHT — ESG Visual Carousel -->
+    <div class="id-right">
+      <div class="id-right-pattern"></div>
+      <div class="id-right-grid"></div>
+
+      <div class="esg-carousel" id="esg-carousel">
+        <!-- SLIDE E -->
+        <div class="esg-slide active-slide" data-slide="0">
+          <div class="esg-slide-icon" style="background:linear-gradient(135deg,#3aaa6e,#2d8a5a)">🌿</div>
+          <div class="esg-slide-title">Environnement</div>
+          <div class="esg-slide-desc">Émissions carbone, gestion de l'énergie, de l'eau, des déchets et impacts sur la biodiversité.</div>
+          <div class="esg-slide-stats">
+            <div class="esg-stat"><div class="esg-stat-num">16</div><div class="esg-stat-label">Questions</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">6</div><div class="esg-stat-label">Thématiques</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">40%</div><div class="esg-stat-label">Poids</div></div>
+          </div>
+        </div>
+        <!-- SLIDE S -->
+        <div class="esg-slide" data-slide="1">
+          <div class="esg-slide-icon" style="background:linear-gradient(135deg,#e07b2a,#c76820)">🤝</div>
+          <div class="esg-slide-title">Social</div>
+          <div class="esg-slide-desc">Capital humain, santé-sécurité, diversité, qualité produit, confidentialité et chaîne d'approvisionnement.</div>
+          <div class="esg-slide-stats">
+            <div class="esg-stat"><div class="esg-stat-num">20</div><div class="esg-stat-label">Questions</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">8</div><div class="esg-stat-label">Thématiques</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">30%</div><div class="esg-stat-label">Poids</div></div>
+          </div>
+        </div>
+        <!-- SLIDE G -->
+        <div class="esg-slide" data-slide="2">
+          <div class="esg-slide-icon" style="background:linear-gradient(135deg,#2e6db4,#1e5090)">⚖️</div>
+          <div class="esg-slide-title">Gouvernance</div>
+          <div class="esg-slide-desc">Éthique des affaires, conformité, gestion des risques, gouvernance du conseil et transparence.</div>
+          <div class="esg-slide-stats">
+            <div class="esg-stat"><div class="esg-stat-num">21</div><div class="esg-stat-label">Questions</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">6</div><div class="esg-stat-label">Thématiques</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">30%</div><div class="esg-stat-label">Poids</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="esg-carousel-dots">
+        <button class="esg-dot active-dot" onclick="goSlide(0)"></button>
+        <button class="esg-dot" onclick="goSlide(1)"></button>
+        <button class="esg-dot" onclick="goSlide(2)"></button>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Poste</label><input class="form-input" id="f-poste" placeholder="Directeur Financier, RSE Manager…" /></div>
-    <button class="btn-next" onclick="startQuestionnaire()">
-      Démarrer le questionnaire
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </button>
-    <span class="back-link" onclick="showPage('landing')">← Retour</span>
+
   </div>
 </div>
 
@@ -730,6 +976,15 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
         Recommencer
       </button>
+      <div class="gs-status-badge" id="gs-submit-status" style="display:none"></div>
+    </div>
+    <!-- Google Sheets status -->
+    <div class="gs-banner" id="gs-config-banner">
+      <div class="gs-banner-icon">📊</div>
+      <div class="gs-banner-text">
+        <div class="gs-banner-title" id="gs-banner-title">Google Sheets</div>
+        <div class="gs-banner-sub" id="gs-banner-sub">—</div>
+      </div>
     </div>
     <div class="score-hero">
       <div class="score-gauge"><div class="gauge-ring">
@@ -1458,10 +1713,6 @@ const sectorBenchmarks = {
   autre:        { E: 49, S: 58, G: 58 }
 };
 
-    const supabaseUrl = 'https://hjcvjnldhfouuynlaqbx.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqY3ZqbmxkaGZvdXV5bmxhcWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMzk1MjMsImV4cCI6MjA4ODcxNTUyM30.gjBUIuRulmuL2FYy6PnCqUANaVlbIYbZRL9BHTcksVU';
-    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
 // ═══ PAGE NAV ═══
 function showPage(page) {
   document.getElementById('page-landing').style.display = 'none';
@@ -1479,43 +1730,19 @@ function showPage(page) {
 }
 
 // ═══ START ═══
-async function startQuestionnaire() {
+function startQuestionnaire() {
   const prenom = document.getElementById('f-prenom').value.trim();
   const nom = document.getElementById('f-nom').value.trim();
   const email = document.getElementById('f-email').value.trim();
   const company = document.getElementById('f-company').value.trim();
   const sector = document.getElementById('f-sector').value;
   if (!prenom || !nom || !email || !company || !sector) { alert('Merci de remplir tous les champs obligatoires.'); return; }
-
-  const btn = document.querySelector('.btn-next');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '<span class="loading-spinner"></span> Chargement...';
-  btn.disabled = true;
-
   userInfo = {
     prenom, nom, email, company, sector,
     size: document.getElementById('f-size').value,
     poste: document.getElementById('f-poste').value,
-    date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
-    timestamp: new Date().toISOString()
+    date: new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
   };
-
-  try {
-    const { data, error } = await _supabase
-      .from('leads')
-      .insert([{ prenom: userInfo.prenom, nom: userInfo.nom, email: userInfo.email,
-        company: userInfo.company, sector: userInfo.sector, size: userInfo.size,
-        poste: userInfo.poste, timestamp: userInfo.timestamp }])
-      .select();
-    if (error) console.error('Supabase lead error:', error);
-    else if (data && data[0]) userInfo.lead_id = data[0].id;
-  } catch (err) {
-    console.error('Connection error:', err);
-  }
-
-  btn.innerHTML = originalText;
-  btn.disabled = false;
-
   buildProgressBar();
   buildSidebar();
   buildQuestionnaire();
@@ -1825,44 +2052,9 @@ function computeScores() {
   return sectionScores;
 }
 
-// ═══ SAVE RESPONSES ═══
-async function saveResponses(scores) {
-  try {
-    const rows = questions.map((q, i) => {
-      const ans = answers[i];
-      let answerText = 'Non répondu';
-      if (ans !== undefined) {
-        if (q.type === 'qcm') answerText = q.options[ans] || String(ans);
-        else if (q.type === 'scale') answerText = ans + '/5';
-        else answerText = String(ans);
-      }
-      return {
-        lead_id: userInfo.lead_id || null,
-        lead_email: userInfo.email,
-        lead_company: userInfo.company,
-        question_id: q.id,
-        question_text: q.text,
-        pillar: q.pillar,
-        sub_category: q.sub,
-        answer_raw: ans !== undefined ? String(ans) : null,
-        answer_text: answerText,
-        score_e: scores.E, score_s: scores.S, score_g: scores.G,
-        score_global: scores.global,
-        timestamp: userInfo.timestamp
-      };
-    });
-    const { error } = await _supabase.from('responses').insert(rows);
-    if (error) console.error('Supabase responses error:', error);
-    else console.log('Responses saved');
-  } catch (err) {
-    console.error('Responses save error:', err);
-  }
-}
-
 // ═══ DASHBOARD ═══
-async function generateDashboard() {
+function generateDashboard() {
   const scores = computeScores();
-  await saveResponses(scores);
   const sector = userInfo.sector || 'autre';
   const benchmark = sectorBenchmarks[sector] || sectorBenchmarks.autre;
 
@@ -1922,6 +2114,9 @@ async function generateDashboard() {
   showPage('dashboard');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  // Google Sheets: envoyer les données + notification email
+  submitToGoogleSheets(scores);
+  updateGsBanner();
 }
 
 function buildSectorComparison(scores, benchmark) {
@@ -1998,6 +2193,169 @@ function resetQuestionnaire() {
   showPage('landing');
   window.scrollTo({ top: 0 });
 }
+
+// ═══ ESG CAROUSEL ═══
+
+// ════════════════════════════════════════════════════════
+//   GOOGLE SHEETS + EMAIL NOTIFICATION
+// ════════════════════════════════════════════════════════
+// 1. Déployez le fichier code.gs dans Google Apps Script
+// 2. Copiez l'URL Web App ci-dessous
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhfq6uP9_RpdLaxkgpaQYvKvMs_dRGroXt5BkB5DJzT5DKd9SpO50Nt4-kfOcwgwPm/exec';
+// Exemple : 'https://script.google.com/macros/s/AKfycb.../exec'
+
+// Email(s) pour les notifications (séparés par virgule)
+const NOTIFICATION_EMAILS = 'rachid.zghal@etudiant-enit.utm.tn';
+
+function getScoreLevel(score) {
+  if (score >= 75) return 'Profil ESG Avancé';
+  if (score >= 55) return 'Profil ESG Intermédiaire';
+  if (score >= 35) return 'Profil ESG En développement';
+  return 'Profil ESG Débutant';
+}
+
+function formatAnswerLabel(q, rawAnswer) {
+  if (rawAnswer === undefined || rawAnswer === null) return '—';
+  if (q.type === 'qcm') {
+    const opt = q.options[rawAnswer];
+    return opt ? opt : '—';
+  }
+  if (q.type === 'scale') return rawAnswer + '/5';
+  if (q.type === 'text') return String(rawAnswer).trim() || '—';
+  return String(rawAnswer);
+}
+
+function buildGSPayload(scores) {
+  const formattedAnswers = questions.map((q, index) =>
+    formatAnswerLabel(q, answers[index])
+  );
+  const sectorLabels = {
+    industrie:'Industrie manufacturière', finance:'Services financiers',
+    commerce:'Commerce & Distribution', construction:'Construction & Immobilier',
+    transport:'Transport & Logistique', agriculture:'Agriculture & Agroalimentaire',
+    tech:'Technologie & Numérique', sante:'Santé & Pharmaceutique',
+    energie:'Énergie & Utilities', autre:'Secteur non précisé'
+  };
+  return {
+    timestamp    : new Date().toISOString(),
+    prenom       : userInfo.prenom,
+    nom          : userInfo.nom,
+    email        : userInfo.email,
+    entreprise   : userInfo.company,
+    secteur      : sectorLabels[userInfo.sector] || userInfo.sector,
+    effectif     : userInfo.size || '—',
+    poste        : userInfo.poste || '—',
+    score_global : scores.global,
+    score_e      : scores.E,
+    score_s      : scores.S,
+    score_g      : scores.G,
+    niveau       : getScoreLevel(scores.global),
+    notify_emails: NOTIFICATION_EMAILS,
+    answers      : formattedAnswers,
+    questions_ids: questions.map(q => q.id)
+  };
+}
+
+function setGsStatus(state, msg) {
+  const badge = document.getElementById('gs-submit-status');
+  if (!badge) return;
+  badge.style.display = 'inline-flex';
+  badge.className = 'gs-status-badge ' + state;
+  if (state === 'pending') {
+    badge.innerHTML = '<div class="badge-spinner"></div> ' + msg;
+  } else if (state === 'success') {
+    badge.innerHTML = '✅ ' + msg;
+  } else {
+    badge.innerHTML = '⚠️ ' + msg;
+  }
+}
+
+function updateGsBanner() {
+  const banner = document.getElementById('gs-config-banner');
+  const title = document.getElementById('gs-banner-title');
+  const sub = document.getElementById('gs-banner-sub');
+  if (!banner) return;
+
+  const configured = APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'VOTRE_URL_ICI';
+  if (configured) {
+    banner.classList.add('connected');
+    banner.classList.remove('error');
+    title.innerText = '✅ Google Sheets connecté';
+    sub.innerText = 'Les données seront enregistrées automatiquement avec notification par email';
+  } else {
+    banner.classList.remove('connected');
+    title.innerText = '⚠️ Google Sheets non configuré';
+    sub.innerText = "Renseignez APPS_SCRIPT_URL dans le fichier HTML avec l'URL de votre Web App Google Apps Script";
+  }
+}
+
+async function submitToGoogleSheets(scores) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'VOTRE_URL_ICI') {
+    console.warn('[ESG] APPS_SCRIPT_URL non configurée — soumission ignorée.');
+    const banner = document.getElementById('gs-config-banner');
+    if (banner) { banner.classList.remove('connected'); banner.classList.add('error'); }
+    updateGsBanner();
+    return;
+  }
+
+  setGsStatus('pending', 'Envoi vers Google Sheets…');
+  const payload = buildGSPayload(scores);
+
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    setGsStatus('success', 'Données enregistrées + email envoyé');
+    const banner = document.getElementById('gs-config-banner');
+    if (banner) {
+      banner.classList.add('connected');
+      document.getElementById('gs-banner-title').innerText = '✅ Données envoyées avec succès';
+      document.getElementById('gs-banner-sub').innerText = 'Résultats sauvegardés dans Google Sheets — Notification envoyée à ' + NOTIFICATION_EMAILS;
+    }
+    console.log('[ESG] Soumission réussie :', payload.entreprise, '— Score :', payload.score_global);
+  } catch (err) {
+    setGsStatus('error', 'Erreur réseau — vérifiez votre connexion');
+    const banner = document.getElementById('gs-config-banner');
+    if (banner) {
+      banner.classList.add('error');
+      document.getElementById('gs-banner-title').innerText = '⚠️ Erreur d\'envoi';
+      document.getElementById('gs-banner-sub').innerText = err.message;
+    }
+    console.error('[ESG] Erreur :', err);
+  }
+}
+// ════════════════════════════════════════════════════════
+let currentSlide = 0;
+let slideInterval = null;
+
+function goSlide(n) {
+  currentSlide = n;
+  document.querySelectorAll('.esg-slide').forEach(s => s.classList.remove('active-slide'));
+  document.querySelectorAll('.esg-dot').forEach(d => d.classList.remove('active-dot'));
+  const slide = document.querySelector('.esg-slide[data-slide="' + n + '"]');
+  const dot = document.querySelectorAll('.esg-dot')[n];
+  if (slide) slide.classList.add('active-slide');
+  if (dot) dot.classList.add('active-dot');
+}
+
+function startCarousel() {
+  if (slideInterval) clearInterval(slideInterval);
+  slideInterval = setInterval(function() {
+    currentSlide = (currentSlide + 1) % 3;
+    goSlide(currentSlide);
+  }, 4000);
+}
+
+// Wrap showPage to auto-start carousel
+const _origShowPage = showPage;
+showPage = function(page) {
+  _origShowPage(page);
+  if (page === 'identification') startCarousel();
+  else if (slideInterval) { clearInterval(slideInterval); slideInterval = null; }
+};
 
 showPage('landing');
 
