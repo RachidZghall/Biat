@@ -2573,32 +2573,67 @@ function verifyOtpDirect() {
 /** Logique commune post-authentification : charger draft + router */
 function afterAuthSuccess(r) {
   loadDraftFromServer().finally(function() {
+    // Si le dossier a été soumis, on demande à l'utilisateur ce qu'il veut faire
     if (state.submittedAt) {
-      hydrateUserInfoFromState();
-      hydrateAnswersFromState();
-      if (typeof questions !== 'undefined' && questions.length) {
-        buildProgressBar(); buildSidebar(); buildQuestionnaire();
-        updateProgress(); updateSidebar();
-        const scores = computeScores();
-        generateDashboardFromScores(scores);
+      const choice = confirm(
+        'Votre dossier a déjà été soumis le ' + new Date(state.submittedAt).toLocaleString('fr-FR') + '.\n\n' +
+        'Cliquer OK pour RÉOUVRIR le dossier et continuer à le modifier.\n' +
+        'Cliquer Annuler pour voir votre tableau de bord final.'
+      );
+      if (choice) {
+        // Réouverture côté serveur
+        biatApi('reopen_draft', { token: r.token || getSession().token }).then(function(resp) {
+          if (resp && resp.ok) {
+            state.submittedAt = null;
+            saveLocalDraft();
+            routeToIdentification(r);
+          } else {
+            alert('Impossible de rouvrir le dossier : ' + ((resp && resp.error) || 'erreur inconnue'));
+            routeToDashboard(r);
+          }
+        }).catch(function() {
+          alert('Erreur réseau lors de la réouverture.');
+          routeToDashboard(r);
+        });
+        return;
+      } else {
+        routeToDashboard(r);
         return;
       }
     }
-    showPage('identification');
-    const fEmail = document.getElementById('f-email');
-    if (fEmail) {
-      fEmail.value = r.email;
-      fEmail.readOnly = true;
-      fEmail.style.background = '#f3f4f6';
-      fEmail.style.cursor = 'not-allowed';
-    }
-    if (state.prenom)  document.getElementById('f-prenom').value  = state.prenom;
-    if (state.nom)     document.getElementById('f-nom').value     = state.nom;
-    if (state.company) document.getElementById('f-company').value = state.company;
-    if (state.sector)  document.getElementById('f-sector').value  = state.sector;
-    if (state.size)    document.getElementById('f-size').value    = state.size;
-    if (state.poste)   document.getElementById('f-poste').value   = state.poste;
+    // Cas normal : pas encore soumis → identification
+    routeToIdentification(r);
   });
+}
+
+function routeToIdentification(r) {
+  showPage('identification');
+  const fEmail = document.getElementById('f-email');
+  if (fEmail) {
+    fEmail.value = r.email;
+    fEmail.readOnly = true;
+    fEmail.style.background = '#f3f4f6';
+    fEmail.style.cursor = 'not-allowed';
+  }
+  if (state.prenom)  document.getElementById('f-prenom').value  = state.prenom;
+  if (state.nom)     document.getElementById('f-nom').value     = state.nom;
+  if (state.company) document.getElementById('f-company').value = state.company;
+  if (state.sector)  document.getElementById('f-sector').value  = state.sector;
+  if (state.size)    document.getElementById('f-size').value    = state.size;
+  if (state.poste)   document.getElementById('f-poste').value   = state.poste;
+}
+
+function routeToDashboard(r) {
+  hydrateUserInfoFromState();
+  hydrateAnswersFromState();
+  if (typeof questions !== 'undefined' && questions.length) {
+    buildProgressBar(); buildSidebar(); buildQuestionnaire();
+    updateProgress(); updateSidebar();
+    const scores = computeScores();
+    generateDashboardFromScores(scores);
+  } else {
+    showPage('landing');
+  }
 }
 
 function verifyOtp() {
@@ -2727,12 +2762,17 @@ async function loadDraftFromServer() {
   try {
     const r = await biatApi('load_draft', { token: ses.token });
     if (r && r.ok && r.payload) {
-      state = Object.assign(state, r.payload);
-      if (r.submitted) state.submittedAt = state.submittedAt || r.updatedAt || new Date().toISOString();
+      // On ne veut PAS conserver `submittedAt` venant du payload (vestige potentiel d'anciennes sessions).
+      // La source de vérité pour "est-ce soumis" est r.submitted (côté serveur uniquement).
+      const serverPayload = Object.assign({}, r.payload);
+      delete serverPayload.submittedAt;
+      state = Object.assign(state, serverPayload);
+      state.submittedAt = r.submitted ? (r.updatedAt || new Date().toISOString()) : null;
       state.email = ses.email;
       saveLocalDraft();
     } else {
       state.email = ses.email;
+      state.submittedAt = null;
     }
   } catch (e) { /* silent */ }
 }
@@ -3069,13 +3109,22 @@ showPage = function(page) {
 loadLocalDraft();
 const _boot_session = getSession();
 if (_boot_session) {
-  // Session présente → on va vérifier qu'elle est toujours valide en chargeant le draft serveur
+  // Session présente → on charge le draft serveur (source de vérité sur submitted)
   loadDraftFromServer().finally(function() {
-    if (state.submittedAt) {
-      // Déjà soumis : on propose d'afficher le dashboard ou de recommencer
-      showPage('landing');
+    if (state.submittedAt && Object.keys(state.answers || {}).length > 0) {
+      // Dossier soumis ET contenant des réponses : on affiche le dashboard final
+      hydrateUserInfoFromState();
+      hydrateAnswersFromState();
+      if (typeof questions !== 'undefined' && questions.length) {
+        buildProgressBar(); buildSidebar(); buildQuestionnaire();
+        updateProgress(); updateSidebar();
+        const scores = computeScores();
+        generateDashboardFromScores(scores);
+      } else {
+        showPage('landing');
+      }
     } else if (Object.keys(state.answers || {}).length > 0) {
-      // Draft en cours : on va directement à l'identification pré-remplie
+      // Draft en cours : retour direct à l'identification pré-remplie
       hydrateUserInfoFromState();
       hydrateAnswersFromState();
       showPage('identification');
@@ -3091,7 +3140,15 @@ if (_boot_session) {
         fEmail.style.cursor = 'not-allowed';
       }
     } else {
-      showPage('landing');
+      // Pas de réponses encore : retour à l'identification pré-remplie (email verrouillé)
+      showPage('identification');
+      const fEmail = document.getElementById('f-email');
+      if (fEmail) {
+        fEmail.value = _boot_session.email;
+        fEmail.readOnly = true;
+        fEmail.style.background = '#f3f4f6';
+        fEmail.style.cursor = 'not-allowed';
+      }
     }
   });
 } else {
