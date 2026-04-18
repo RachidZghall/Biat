@@ -831,7 +831,10 @@
           <span id="auth-send-label">Recevoir le code</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
-        <div id="auth-email-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none"></div>
+        <div id="auth-email-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none;line-height:1.5"></div>
+        <div style="grid-column:1/-1;text-align:center;font-size:0.82rem;color:var(--gray-400);margin-top:-4px">
+          Déjà un code ? <a href="#" onclick="goToCodeStep();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Saisir mon code directement</a>
+        </div>
         <span class="id-back-link" onclick="showPage('landing')">← Retour à l'accueil</span>
       </div>
 
@@ -2357,12 +2360,32 @@ const DRAFT_LOCAL_KEY = 'biat_esg_draft';
 
 async function biatApi(action, data) {
   // text/plain pour éviter le preflight CORS (Apps Script ne supporte pas les headers custom)
-  const res = await fetch(BIAT_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(Object.assign({ action: action }, data || {}))
-  });
-  return res.json();
+  let res, text;
+  try {
+    res = await fetch(BIAT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action: action }, data || {}))
+    });
+  } catch (netErr) {
+    throw new Error('network: ' + netErr.message);
+  }
+  try {
+    text = await res.text();
+  } catch (e) {
+    throw new Error('read: ' + e.message);
+  }
+  if (!res.ok) {
+    // Apps Script renvoie souvent du HTML en cas d'erreur → on extrait un extrait lisible
+    const snippet = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
+    throw new Error('HTTP ' + res.status + ' — ' + (snippet || 'réponse non-JSON'));
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    const snippet = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
+    throw new Error('Réponse non-JSON : ' + snippet);
+  }
 }
 
 function getSession()   { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; } }
@@ -2392,19 +2415,42 @@ function sendOtp() {
     .then(function(r) {
       btn.disabled = false;
       label.textContent = 'Recevoir le code';
-      if (!r || !r.ok) throw new Error((r && r.error) || 'Erreur');
+      if (!r || !r.ok) {
+        const msg = (r && r.error === 'invalid_email') ? 'Email invalide.' : ('Erreur serveur : ' + ((r && r.error) || 'inconnue'));
+        throw new Error(msg);
+      }
       _authEmailPending = email;
       document.getElementById('auth-email-display').textContent = '(' + email + ')';
       document.getElementById('auth-step-email').style.display = 'none';
       document.getElementById('auth-step-code').style.display = 'grid';
       setTimeout(function(){ document.getElementById('auth-code').focus(); }, 100);
     })
-    .catch(function() {
+    .catch(function(err) {
       btn.disabled = false;
       label.textContent = 'Recevoir le code';
-      errEl.textContent = "Impossible d'envoyer le code. Vérifiez votre connexion et réessayez.";
+      // Affiche le vrai message pour aider au diagnostic
+      errEl.innerHTML = "Impossible d'envoyer le code.<br><span style='font-size:0.75rem;opacity:0.85'>" +
+                        (err && err.message ? escapeHtml(err.message) : 'Erreur inconnue') +
+                        "</span>";
       errEl.style.display = 'block';
     });
+}
+
+function goToCodeStep() {
+  const emailInput = document.getElementById('auth-email');
+  const email = (emailInput.value || '').trim().toLowerCase();
+  const errEl = document.getElementById('auth-email-error');
+  errEl.style.display = 'none';
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    errEl.textContent = 'Renseignez d\'abord votre email ci-dessus, puis cliquez sur "Saisir mon code".';
+    errEl.style.display = 'block'; return;
+  }
+  _authEmailPending = email;
+  document.getElementById('auth-email-display').textContent = '(' + email + ')';
+  document.getElementById('auth-step-email').style.display = 'none';
+  document.getElementById('auth-step-code').style.display = 'grid';
+  setTimeout(function(){ document.getElementById('auth-code').focus(); }, 100);
 }
 
 function verifyOtp() {
@@ -2465,10 +2511,10 @@ function verifyOtp() {
         if (state.poste)   document.getElementById('f-poste').value   = state.poste;
       });
     })
-    .catch(function() {
+    .catch(function(err) {
       btn.disabled = false;
       label.textContent = 'Vérifier et continuer';
-      errEl.textContent = 'Erreur réseau. Réessayez.';
+      errEl.innerHTML = 'Erreur : <span style="font-size:0.75rem;opacity:0.85">' + escapeHtml((err && err.message) || 'réseau') + '</span>';
       errEl.style.display = 'block';
     });
 }
