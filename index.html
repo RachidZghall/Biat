@@ -1946,12 +1946,31 @@ function buildSidebar() {
     html += `<button class="sidebar-q-btn state-pending" id="sb-${i}" onclick="goToQuestion(${i})" title="${q.id}">${qNum}</button>`;
   });
   html += '</div></div>';
+
+  // Section Documents (nouvelle)
+  html += `<div class="sidebar-section">
+    <div class="sidebar-section-header">
+      <div class="sidebar-section-dot" style="background:#8b5cf6"></div>
+      <span>Documents</span>
+    </div>
+    <div class="sidebar-questions" style="padding:4px 16px 8px">
+      <button class="sidebar-q-btn state-pending" id="sb-docs" onclick="goToDocsSection()" title="Justificatifs" style="width:auto;min-width:36px;padding:0 10px">
+        <span id="sb-docs-count">0</span>
+      </button>
+    </div>
+  </div>`;
+
   html += `<div class="sidebar-legend">
     <div class="legend-item"><div class="legend-dot lg-pending"></div>Non atteint</div>
     <div class="legend-item"><div class="legend-dot lg-skipped"></div>Non répondu</div>
     <div class="legend-item"><div class="legend-dot lg-answered"></div>Répondu</div>
   </div>`;
   sidebar.innerHTML = html;
+}
+
+function goToDocsSection() {
+  const el = document.getElementById('submit-section');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ═══ BUILD QUESTIONNAIRE ═══
@@ -2824,8 +2843,18 @@ function removeDoc(fileId) {
 
 function renderDocList() {
   const el = document.getElementById('doc-list');
-  if (!el) return;
   const docs = state.documents || [];
+
+  // Mettre à jour le compteur dans la sidebar
+  const countEl = document.getElementById('sb-docs-count');
+  const sbBtn = document.getElementById('sb-docs');
+  if (countEl && sbBtn) {
+    countEl.textContent = docs.length;
+    sbBtn.classList.remove('state-pending','state-answered');
+    sbBtn.classList.add(docs.length > 0 ? 'state-answered' : 'state-pending');
+  }
+
+  if (!el) return;
   if (docs.length === 0) { el.innerHTML = ''; return; }
   el.innerHTML =
     '<div style="font-size:0.72rem;color:var(--navy);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em">Documents joints (' + docs.length + ')</div>' +
