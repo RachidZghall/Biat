@@ -796,7 +796,7 @@
       <div class="stat-divider"></div>
       <div class="stat-item"><div class="stat-number">~15'</div><div class="stat-label">Durée estimée</div></div>
     </div>
-    <button class="btn-start" onclick="showPage('identification')">
+    <button class="btn-start" onclick="showPage('auth')">
       Commencer l'évaluation
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
@@ -805,6 +805,80 @@
     <div class="footer-item"><div class="footer-dot" style="background:#3aaa6e"></div>Confidentiel</div>
     <div class="footer-item"><div class="footer-dot" style="background:#d38323"></div>GRI · SASB · IFRS · CMF</div>
     <div class="footer-item"><div class="footer-dot" style="background:#2e6db4"></div>Score automatique</div>
+  </div>
+</div>
+
+<!-- ═══ AUTH (OTP EMAIL) ═══ -->
+<div id="page-auth" style="display:none; min-height:100vh; background:var(--white)">
+  <div class="id-split">
+    <div class="id-left">
+      <div class="id-left-brand">
+        <img src="https://upload.wikimedia.org/wikipedia/fr/archive/7/74/20250603043408%21Logo_biat_2019.jpg" alt="BIAT">
+        <span class="id-left-brand-text">ESG Assessment</span>
+      </div>
+
+      <h2>Connexion<br>sécurisée par <span>email</span></h2>
+      <p class="id-left-sub">Nous vous enverrons un code à 6 chiffres pour valider votre identité et vous permettre de reprendre votre évaluation à tout moment.</p>
+
+      <!-- Step 1 : email -->
+      <div id="auth-step-email" class="id-form-grid">
+        <div class="field-wrap span-2">
+          <label>Email professionnel</label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <input id="auth-email" type="email" placeholder="jean.dupont@entreprise.com" autocomplete="email" />
+        </div>
+        <button class="btn-start-form" id="auth-send-btn" onclick="sendOtp()">
+          <span id="auth-send-label">Recevoir le code</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div id="auth-email-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none"></div>
+        <span class="id-back-link" onclick="showPage('landing')">← Retour à l'accueil</span>
+      </div>
+
+      <!-- Step 2 : code -->
+      <div id="auth-step-code" class="id-form-grid" style="display:none">
+        <div class="field-wrap span-2">
+          <label>Code reçu par email <span id="auth-email-display" style="color:var(--gray-400);font-weight:500;text-transform:none;letter-spacing:0"></span></label>
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input id="auth-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+                 placeholder="••••••"
+                 style="letter-spacing:10px;text-align:center;font-size:1.3rem;font-weight:700;padding-left:42px" />
+        </div>
+        <button class="btn-start-form" id="auth-verify-btn" onclick="verifyOtp()">
+          <span id="auth-verify-label">Vérifier et continuer</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div id="auth-code-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none"></div>
+        <div style="grid-column:1/-1;text-align:center;font-size:0.82rem;color:var(--gray-400)">
+          Pas reçu ? <a href="#" onclick="sendOtp();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Renvoyer le code</a>
+          &nbsp;·&nbsp;
+          <a href="#" onclick="backToEmailStep();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Changer d'email</a>
+        </div>
+      </div>
+
+      <div class="id-secure-row" style="margin-top:24px">
+        <div class="id-secure-item"><div class="id-secure-dot" style="background:#3aaa6e"></div>Confidentiel</div>
+        <div class="id-secure-item"><div class="id-secure-dot" style="background:#d38323"></div>Code à 6 chiffres</div>
+        <div class="id-secure-item"><div class="id-secure-dot" style="background:#2e6db4"></div>Reprise possible</div>
+      </div>
+    </div>
+
+    <div class="id-right">
+      <div class="id-right-pattern"></div>
+      <div class="id-right-grid"></div>
+      <div class="esg-carousel">
+        <div class="esg-slide active-slide">
+          <div class="esg-slide-icon" style="background:linear-gradient(135deg,#2e6db4,#1e5090);font-size:2.6rem">🔐</div>
+          <div class="esg-slide-title">Évaluation sécurisée</div>
+          <div class="esg-slide-desc">Vos réponses sont confidentielles. Après vérification par email, vous pourrez reprendre et modifier votre évaluation à tout moment avant soumission finale.</div>
+          <div class="esg-slide-stats">
+            <div class="esg-stat"><div class="esg-stat-num">🔒</div><div class="esg-stat-label">Chiffré</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">💾</div><div class="esg-stat-label">Auto-sauvegarde</div></div>
+            <div class="esg-stat"><div class="esg-stat-num">↩️</div><div class="esg-stat-label">Reprise possible</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1716,12 +1790,14 @@ const sectorBenchmarks = {
 // ═══ PAGE NAV ═══
 function showPage(page) {
   document.getElementById('page-landing').style.display = 'none';
+  document.getElementById('page-auth').style.display = 'none';
   document.getElementById('page-identification').classList.remove('active');
   document.getElementById('page-questionnaire').classList.remove('active');
   document.getElementById('page-dashboard').classList.remove('active');
   document.getElementById('progress-bar-wrapper').classList.remove('visible');
 
   if (page === 'landing') document.getElementById('page-landing').style.display = 'flex';
+  else if (page === 'auth') document.getElementById('page-auth').style.display = 'block';
   else if (page === 'identification') document.getElementById('page-identification').classList.add('active');
   else if (page === 'questionnaire') {
     document.getElementById('page-questionnaire').classList.add('active');
@@ -1731,26 +1807,67 @@ function showPage(page) {
 
 // ═══ START ═══
 function startQuestionnaire() {
+  // Garde : on doit être authentifié
+  const ses = getSession();
+  if (!ses) { alert('Veuillez vous authentifier par email.'); showPage('auth'); return; }
+
   const prenom = document.getElementById('f-prenom').value.trim();
   const nom = document.getElementById('f-nom').value.trim();
   const email = document.getElementById('f-email').value.trim();
   const company = document.getElementById('f-company').value.trim();
   const sector = document.getElementById('f-sector').value;
   if (!prenom || !nom || !email || !company || !sector) { alert('Merci de remplir tous les champs obligatoires.'); return; }
+
+  // Sécurité : l'email du formulaire doit correspondre à l'email authentifié
+  if (email.toLowerCase() !== String(ses.email).toLowerCase()) {
+    alert("L'email doit correspondre à celui utilisé pour l'authentification.");
+    document.getElementById('f-email').value = ses.email;
+    return;
+  }
+
   userInfo = {
     prenom, nom, email, company, sector,
     size: document.getElementById('f-size').value,
     poste: document.getElementById('f-poste').value,
     date: new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
   };
+
+  // Hydrater les réponses depuis le draft (reprise)
+  hydrateAnswersFromState();
+
   buildProgressBar();
   buildSidebar();
   buildQuestionnaire();
   showPage('questionnaire');
   updateProgress();
+  updateSidebar();
+  renderDocList();
+  saveDraftDebounced();
+
   setTimeout(() => {
-    activateQuestion(0);
+    // Si on reprend avec des réponses, aller à la dernière question atteinte
+    const resumeAt = Math.min(maxReachedIndex, questions.length - 1);
+    activateQuestion(resumeAt);
     setupScrollObserver();
+    // Re-rendre les réponses déjà présentes dans l'UI
+    Object.keys(answers).forEach(function(k) {
+      const idx = Number(k);
+      const ans = answers[idx];
+      const q = questions[idx];
+      if (!q) return;
+      if (q.type === 'qcm') {
+        const btns = document.querySelectorAll('#qs-' + idx + ' .opt-qcm');
+        if (btns[ans]) btns[ans].classList.add('selected');
+      } else if (q.type === 'scale') {
+        const btns = document.querySelectorAll('#qs-' + idx + ' .scale-btn');
+        btns.forEach(function(b) { if (Number(b.textContent.trim()) === Number(ans)) b.classList.add('selected'); });
+      } else if (q.type === 'text') {
+        const ta = document.querySelector('#qs-' + idx + ' .text-answer');
+        if (ta) ta.value = ans;
+      }
+      const check = document.getElementById('check-' + idx);
+      if (check) check.classList.add('show');
+    });
   }, 300);
 }
 
@@ -1876,13 +1993,27 @@ function buildQuestionnaire() {
   const submitDiv = document.createElement('div');
   submitDiv.className = 'submit-section';
   submitDiv.id = 'submit-section';
-  submitDiv.innerHTML = `<div class="submit-card">
+  submitDiv.innerHTML = `
+  <div style="max-width:780px;margin:0 auto 24px;padding:0;width:100%">
+    <div style="background:#fff;border:2px dashed var(--gray-200);border-radius:16px;padding:24px;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:6px">📂</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--navy-dark);margin:0 0 6px">Documents justificatifs <span style="color:var(--gray-400);font-weight:400;font-size:0.85rem">(optionnel)</span></h3>
+      <p style="font-size:0.85rem;color:var(--gray-400);margin:0 0 16px;line-height:1.6">Joignez vos certifications, rapports ou politiques pour appuyer vos réponses.</p>
+      <button class="btn-action btn-action-primary" onclick="openDocModal()" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter un document
+      </button>
+      <div id="doc-list" style="margin-top:16px;text-align:left"></div>
+    </div>
+  </div>
+  <div class="submit-card">
     <div class="submit-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#264676" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
     <h2 class="submit-title">Questionnaire complété !</h2>
     <p class="submit-subtitle">Vous avez répondu à ${questions.length} questions. Générez votre score ESG.</p>
     <button class="btn-submit" onclick="generateDashboard()">Générer mon score ESG</button>
   </div>`;
   container.appendChild(submitDiv);
+  renderDocList();
 }
 
 // ═══ NAVIGATION ═══
@@ -1954,6 +2085,7 @@ function answerQCM(index, optIndex, btn) {
   if (check) check.classList.add('show');
   updateProgress();
   updateSidebar();
+  saveDraftDebounced();
   setTimeout(() => continueNext(index), 600);
 }
 
@@ -1965,6 +2097,7 @@ function answerScale(index, val, btn) {
   if (check) check.classList.add('show');
   updateProgress();
   updateSidebar();
+  saveDraftDebounced();
   setTimeout(() => continueNext(index), 600);
 }
 
@@ -1976,6 +2109,7 @@ function answerText(index, el) {
   }
   updateProgress();
   updateSidebar();
+  saveDraftDebounced();
 }
 
 // ═══ SIDEBAR UPDATE ═══
@@ -2183,10 +2317,17 @@ function buildRecommendations(scores) {
 }
 
 function resetQuestionnaire() {
+  if (!confirm('Recommencer effacera votre session et votre brouillon local. Continuer ?')) return;
   answers = {};
   currentQuestionIndex = 0;
   maxReachedIndex = 0;
   userInfo = {};
+  state = {
+    prenom: '', nom: '', email: '', company: '', sector: '', size: '', poste: '',
+    answers: {}, documents: [], currentQ: 0, maxReached: 0, submittedAt: null
+  };
+  clearSession();
+  localStorage.removeItem(DRAFT_LOCAL_KEY);
   if (radarChartInstance) { radarChartInstance.destroy(); radarChartInstance = null; }
   document.getElementById('questions-container').innerHTML = '';
   document.getElementById('q-sidebar').innerHTML = '';
@@ -2206,6 +2347,370 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhfq6uP9_RpdLa
 
 // Email(s) pour les notifications (séparés par virgule)
 const NOTIFICATION_EMAILS = 'rachid.zghal@etudiant-enit.utm.tn, chayma.felfel@gmail.com';
+
+// ════════════════════════════════════════════════════════
+//   BIAT API — Auth OTP + Drafts + Upload
+// ════════════════════════════════════════════════════════
+const BIAT_API = APPS_SCRIPT_URL;
+const SESSION_KEY = 'biat_esg_session';
+const DRAFT_LOCAL_KEY = 'biat_esg_draft';
+
+async function biatApi(action, data) {
+  // text/plain pour éviter le preflight CORS (Apps Script ne supporte pas les headers custom)
+  const res = await fetch(BIAT_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(Object.assign({ action: action }, data || {}))
+  });
+  return res.json();
+}
+
+function getSession()   { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; } }
+function setSession(s)  { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+/* ---------- Auth flow ---------- */
+
+let _authEmailPending = '';
+
+function sendOtp() {
+  const emailInput = document.getElementById('auth-email');
+  const email = (emailInput.value || '').trim().toLowerCase();
+  const errEl = document.getElementById('auth-email-error');
+  const btn = document.getElementById('auth-send-btn');
+  const label = document.getElementById('auth-send-label');
+  errEl.style.display = 'none';
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    errEl.textContent = 'Email invalide.'; errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true;
+  label.textContent = 'Envoi en cours…';
+
+  biatApi('request_otp', { email: email })
+    .then(function(r) {
+      btn.disabled = false;
+      label.textContent = 'Recevoir le code';
+      if (!r || !r.ok) throw new Error((r && r.error) || 'Erreur');
+      _authEmailPending = email;
+      document.getElementById('auth-email-display').textContent = '(' + email + ')';
+      document.getElementById('auth-step-email').style.display = 'none';
+      document.getElementById('auth-step-code').style.display = 'grid';
+      setTimeout(function(){ document.getElementById('auth-code').focus(); }, 100);
+    })
+    .catch(function() {
+      btn.disabled = false;
+      label.textContent = 'Recevoir le code';
+      errEl.textContent = "Impossible d'envoyer le code. Vérifiez votre connexion et réessayez.";
+      errEl.style.display = 'block';
+    });
+}
+
+function verifyOtp() {
+  const codeInput = document.getElementById('auth-code');
+  const code = (codeInput.value || '').trim();
+  const errEl = document.getElementById('auth-code-error');
+  const btn = document.getElementById('auth-verify-btn');
+  const label = document.getElementById('auth-verify-label');
+  errEl.style.display = 'none';
+
+  if (!/^\d{6}$/.test(code)) {
+    errEl.textContent = 'Le code doit contenir 6 chiffres.'; errEl.style.display = 'block'; return;
+  }
+  btn.disabled = true;
+  label.textContent = 'Vérification…';
+
+  biatApi('verify_otp', { email: _authEmailPending, code: code })
+    .then(function(r) {
+      btn.disabled = false;
+      label.textContent = 'Vérifier et continuer';
+      if (!r || !r.ok) {
+        const msg = r && r.error === 'expired'      ? 'Code expiré, cliquez sur "Renvoyer le code".'
+                  : r && r.error === 'invalid_code' ? 'Code incorrect. Vérifiez et réessayez.'
+                  : 'Erreur de vérification.';
+        errEl.textContent = msg; errEl.style.display = 'block';
+        return;
+      }
+      setSession({ token: r.token, email: r.email, createdAt: Date.now() });
+      // Une fois authentifié : on charge le draft serveur puis on passe à l'identification
+      loadDraftFromServer().finally(function() {
+        // Si le draft indique que déjà soumis, on bascule sur le dashboard en mode consultation
+        if (state.submittedAt) {
+          hydrateUserInfoFromState();
+          hydrateAnswersFromState();
+          if (typeof questions !== 'undefined' && questions.length) {
+            buildProgressBar(); buildSidebar(); buildQuestionnaire();
+            updateProgress(); updateSidebar();
+            const scores = computeScores();
+            generateDashboardFromScores(scores);
+            return;
+          }
+        }
+        showPage('identification');
+        // Pré-remplir l'email (verrouillé)
+        const fEmail = document.getElementById('f-email');
+        if (fEmail) {
+          fEmail.value = r.email;
+          fEmail.readOnly = true;
+          fEmail.style.background = '#f3f4f6';
+          fEmail.style.cursor = 'not-allowed';
+        }
+        // Pré-remplir les autres champs si un draft existe
+        if (state.prenom)  document.getElementById('f-prenom').value  = state.prenom;
+        if (state.nom)     document.getElementById('f-nom').value     = state.nom;
+        if (state.company) document.getElementById('f-company').value = state.company;
+        if (state.sector)  document.getElementById('f-sector').value  = state.sector;
+        if (state.size)    document.getElementById('f-size').value    = state.size;
+        if (state.poste)   document.getElementById('f-poste').value   = state.poste;
+      });
+    })
+    .catch(function() {
+      btn.disabled = false;
+      label.textContent = 'Vérifier et continuer';
+      errEl.textContent = 'Erreur réseau. Réessayez.';
+      errEl.style.display = 'block';
+    });
+}
+
+function backToEmailStep() {
+  document.getElementById('auth-step-code').style.display = 'none';
+  document.getElementById('auth-step-email').style.display = 'grid';
+  document.getElementById('auth-code').value = '';
+}
+
+/* ---------- State + persistence ---------- */
+
+// Objet unique reflétant l'état complet de l'évaluation (synchro avec userInfo + answers + documents)
+let state = {
+  prenom: '', nom: '', email: '', company: '', sector: '', size: '', poste: '',
+  answers: {},         // { questionIndex: value }
+  documents: [],
+  currentQ: 0,
+  maxReached: 0,
+  submittedAt: null
+};
+
+function syncStateFromUserInfo() {
+  state.prenom  = userInfo.prenom  || state.prenom;
+  state.nom     = userInfo.nom     || state.nom;
+  state.email   = userInfo.email   || state.email;
+  state.company = userInfo.company || state.company;
+  state.sector  = userInfo.sector  || state.sector;
+  state.size    = userInfo.size    || state.size;
+  state.poste   = userInfo.poste   || state.poste;
+}
+
+function hydrateUserInfoFromState() {
+  userInfo = {
+    prenom:  state.prenom,
+    nom:     state.nom,
+    email:   state.email,
+    company: state.company,
+    sector:  state.sector,
+    size:    state.size,
+    poste:   state.poste,
+    date:    new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
+  };
+}
+
+function hydrateAnswersFromState() {
+  answers = {};
+  Object.keys(state.answers || {}).forEach(function(k) {
+    answers[Number(k)] = state.answers[k];
+  });
+  currentQuestionIndex = state.currentQ || 0;
+  maxReachedIndex = state.maxReached || 0;
+}
+
+function loadLocalDraft() {
+  try {
+    const s = JSON.parse(localStorage.getItem(DRAFT_LOCAL_KEY));
+    if (s) state = Object.assign(state, s);
+  } catch (e) {}
+}
+
+function saveLocalDraft() {
+  state.answers = {};
+  Object.keys(answers).forEach(function(k) { state.answers[k] = answers[k]; });
+  state.currentQ = currentQuestionIndex;
+  state.maxReached = maxReachedIndex;
+  localStorage.setItem(DRAFT_LOCAL_KEY, JSON.stringify(state));
+}
+
+let _saveTimer = null;
+function saveDraftDebounced() {
+  syncStateFromUserInfo();
+  saveLocalDraft();
+  const ses = getSession();
+  if (!ses) return;
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(function() {
+    biatApi('save_draft', { token: ses.token, payload: state })
+      .then(function(r) {
+        if (r && r.error === 'already_submitted') {
+          console.warn('[BIAT] Draft locked (already submitted).');
+        }
+      })
+      .catch(function() { /* silent — sera retenté au prochain changement */ });
+  }, 2000);
+}
+
+async function loadDraftFromServer() {
+  const ses = getSession();
+  if (!ses) return;
+  try {
+    const r = await biatApi('load_draft', { token: ses.token });
+    if (r && r.ok && r.payload) {
+      state = Object.assign(state, r.payload);
+      if (r.submitted) state.submittedAt = state.submittedAt || r.updatedAt || new Date().toISOString();
+      state.email = ses.email;
+      saveLocalDraft();
+    } else {
+      state.email = ses.email;
+    }
+  } catch (e) { /* silent */ }
+}
+
+/* ---------- Modale Upload Document ---------- */
+
+function openDocModal() {
+  const ses = getSession();
+  if (!ses) { alert('Session expirée. Veuillez vous reconnecter.'); showPage('auth'); return; }
+  document.getElementById('doc-modal').style.display = 'flex';
+  document.getElementById('doc-category').value = '';
+  document.getElementById('doc-other-wrap').style.display = 'none';
+  document.getElementById('doc-other-name').value = '';
+  document.getElementById('doc-file').value = '';
+  document.getElementById('doc-file-name').textContent = 'Cliquer pour sélectionner un fichier';
+  document.getElementById('doc-error').style.display = 'none';
+  document.getElementById('doc-progress').style.display = 'none';
+  document.getElementById('doc-submit-btn').disabled = false;
+}
+function closeDocModal() { document.getElementById('doc-modal').style.display = 'none'; }
+
+function onDocCategoryChange() {
+  const v = document.getElementById('doc-category').value;
+  document.getElementById('doc-other-wrap').style.display = (v === 'Autre') ? 'block' : 'none';
+}
+
+function onDocFileChange() {
+  const f = document.getElementById('doc-file').files[0];
+  document.getElementById('doc-file-name').textContent = f
+    ? f.name + '  (' + (f.size / 1024 / 1024).toFixed(2) + ' Mo)'
+    : 'Cliquer pour sélectionner un fichier';
+}
+
+function submitDoc() {
+  const cat = document.getElementById('doc-category').value;
+  const otherName = document.getElementById('doc-other-name').value.trim();
+  const file = document.getElementById('doc-file').files[0];
+  const errEl = document.getElementById('doc-error');
+  const progEl = document.getElementById('doc-progress');
+  const progText = document.getElementById('doc-progress-text');
+  const btn = document.getElementById('doc-submit-btn');
+  errEl.style.display = 'none';
+
+  if (!cat)                     { errEl.textContent = 'Sélectionnez un type de document.'; errEl.style.display = 'block'; return; }
+  if (cat === 'Autre' && !otherName) { errEl.textContent = 'Précisez le nom du document.'; errEl.style.display = 'block'; return; }
+  if (!file)                    { errEl.textContent = 'Sélectionnez un fichier.'; errEl.style.display = 'block'; return; }
+  if (file.size > 10 * 1024 * 1024) { errEl.textContent = 'Fichier trop lourd (> 10 Mo).'; errEl.style.display = 'block'; return; }
+
+  const ses = getSession();
+  if (!ses) { errEl.textContent = 'Session expirée, reconnectez-vous.'; errEl.style.display = 'block'; return; }
+
+  const docName = (cat === 'Autre') ? otherName : cat;
+  btn.disabled = true;
+  progText.textContent = 'Lecture du fichier…';
+  progEl.style.display = 'block';
+
+  const reader = new FileReader();
+  reader.onload = function() {
+    const base64 = (reader.result || '').toString().split(',')[1];
+    progText.textContent = 'Upload vers BIAT…';
+    biatApi('upload_doc', {
+      token:       ses.token,
+      docName:     docName,
+      docCategory: cat,
+      filename:    file.name,
+      mimeType:    file.type,
+      base64:      base64
+    }).then(function(r) {
+      btn.disabled = false;
+      progEl.style.display = 'none';
+      if (!r || !r.ok) {
+        errEl.textContent = 'Échec : ' + ((r && r.error) || 'inconnu');
+        errEl.style.display = 'block';
+        return;
+      }
+      state.documents = state.documents || [];
+      state.documents.push({
+        name: docName, category: cat, filename: file.name,
+        fileId: r.fileId, url: r.url, uploadedAt: new Date().toISOString()
+      });
+      saveLocalDraft();
+      renderDocList();
+      closeDocModal();
+    }).catch(function() {
+      btn.disabled = false; progEl.style.display = 'none';
+      errEl.textContent = 'Erreur réseau.'; errEl.style.display = 'block';
+    });
+  };
+  reader.onerror = function() {
+    btn.disabled = false; progEl.style.display = 'none';
+    errEl.textContent = 'Impossible de lire le fichier.'; errEl.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeDoc(fileId) {
+  if (!confirm('Supprimer ce document ?')) return;
+  const ses = getSession();
+  if (!ses) return;
+  biatApi('delete_doc', { token: ses.token, fileId: fileId }).then(function(r) {
+    if (r && r.ok) {
+      state.documents = (state.documents || []).filter(function(d){ return d.fileId !== fileId; });
+      saveLocalDraft();
+      renderDocList();
+    }
+  });
+}
+
+function renderDocList() {
+  const el = document.getElementById('doc-list');
+  if (!el) return;
+  const docs = state.documents || [];
+  if (docs.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML =
+    '<div style="font-size:0.72rem;color:var(--navy);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em">Documents joints (' + docs.length + ')</div>' +
+    docs.map(function(d) {
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:10px;margin-bottom:6px;border:1px solid var(--gray-200)">' +
+             '<span style="font-size:1.1rem">📄</span>' +
+             '<div style="flex:1;min-width:0">' +
+               '<div style="font-size:0.85rem;font-weight:600;color:var(--navy-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(d.name) + '</div>' +
+               '<div style="font-size:0.72rem;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(d.filename) + '</div>' +
+             '</div>' +
+             '<a href="' + d.url + '" target="_blank" rel="noopener" style="color:var(--navy);font-size:0.78rem;font-weight:600;text-decoration:none;padding:4px 10px;border:1.5px solid var(--navy);border-radius:99px">Voir</a>' +
+             '<button onclick="removeDoc(\'' + d.fileId + '\')" style="background:none;border:1.5px solid var(--gray-300);color:var(--gray-600);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1.1rem;line-height:1" title="Supprimer">×</button>' +
+             '</div>';
+    }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, function(c) {
+    return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+  });
+}
+
+/* ---------- Dashboard helper (extrait pour réutilisation) ---------- */
+
+function generateDashboardFromScores(scores) {
+  // Version simplifiée — appelle la logique de rendu existante
+  if (typeof generateDashboard === 'function') {
+    // L'original appelle computeScores() en interne, on le laisse faire
+    generateDashboard();
+  }
+}
 
 function getScoreLevel(score) {
   if (score >= 75) return 'Profil ESG Avancé';
@@ -2298,16 +2803,41 @@ async function submitToGoogleSheets(scores) {
     return;
   }
 
+  const ses = getSession();
+  if (!ses) {
+    setGsStatus('error', 'Session expirée — reconnectez-vous');
+    showPage('auth');
+    return;
+  }
+
   setGsStatus('pending', 'Envoi vers Google Sheets…');
   const payload = buildGSPayload(scores);
+  // Ajouter les documents et le statut de soumission dans le payload
+  payload.documents = state.documents || [];
 
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      // text/plain pour éviter le preflight CORS (Apps Script bloque les headers custom)
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'submit_final',
+        token: ses.token,
+        payload: payload
+      })
     });
+    const r = await res.json();
+    if (!r || !r.ok) {
+      const msg = (r && r.error === 'invalid_session') ? 'Session expirée' : ('Erreur : ' + ((r && r.error) || 'inconnue'));
+      setGsStatus('error', msg);
+      const banner = document.getElementById('gs-config-banner');
+      if (banner) {
+        banner.classList.add('error');
+        document.getElementById('gs-banner-title').innerText = '⚠️ ' + msg;
+        document.getElementById('gs-banner-sub').innerText = '';
+      }
+      return;
+    }
     setGsStatus('success', 'Données enregistrées + email envoyé');
     const banner = document.getElementById('gs-config-banner');
     if (banner) {
@@ -2315,6 +2845,8 @@ async function submitToGoogleSheets(scores) {
       document.getElementById('gs-banner-title').innerText = '✅ Données envoyées avec succès';
       document.getElementById('gs-banner-sub').innerText = 'Résultats sauvegardés dans Google Sheets — Notification envoyée à ' + NOTIFICATION_EMAILS;
     }
+    state.submittedAt = new Date().toISOString();
+    saveLocalDraft();
     console.log('[ESG] Soumission réussie :', payload.entreprise, '— Score :', payload.score_global);
   } catch (err) {
     setGsStatus('error', 'Erreur réseau — vérifiez votre connexion');
@@ -2353,12 +2885,109 @@ function startCarousel() {
 const _origShowPage = showPage;
 showPage = function(page) {
   _origShowPage(page);
-  if (page === 'identification') startCarousel();
+  if (page === 'identification' || page === 'auth') startCarousel();
   else if (slideInterval) { clearInterval(slideInterval); slideInterval = null; }
 };
 
-showPage('landing');
+// ═══ BOOTSTRAP ═══
+// Charger le draft local + restaurer la session si existante
+loadLocalDraft();
+const _boot_session = getSession();
+if (_boot_session) {
+  // Session présente → on va vérifier qu'elle est toujours valide en chargeant le draft serveur
+  loadDraftFromServer().finally(function() {
+    if (state.submittedAt) {
+      // Déjà soumis : on propose d'afficher le dashboard ou de recommencer
+      showPage('landing');
+    } else if (Object.keys(state.answers || {}).length > 0) {
+      // Draft en cours : on va directement à l'identification pré-remplie
+      hydrateUserInfoFromState();
+      hydrateAnswersFromState();
+      showPage('identification');
+      ['prenom','nom','company','sector','size','poste'].forEach(function(f) {
+        const el = document.getElementById('f-' + f);
+        if (el && state[f]) el.value = state[f];
+      });
+      const fEmail = document.getElementById('f-email');
+      if (fEmail) {
+        fEmail.value = _boot_session.email;
+        fEmail.readOnly = true;
+        fEmail.style.background = '#f3f4f6';
+        fEmail.style.cursor = 'not-allowed';
+      }
+    } else {
+      showPage('landing');
+    }
+  });
+} else {
+  showPage('landing');
+}
 
 </script>
+<!-- ═══ MODALE : AJOUT DE DOCUMENT ═══ -->
+<div id="doc-modal" style="display:none;position:fixed;inset:0;background:rgba(26,50,84,0.55);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:32px;max-width:520px;width:100%;box-shadow:var(--shadow-lg);animation:scaleIn 0.3s ease;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy-dark);font-size:1.4rem;margin:0">Ajouter un document</h3>
+      <button onclick="closeDocModal()" style="background:none;border:none;font-size:1.8rem;color:var(--gray-400);cursor:pointer;line-height:1;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">×</button>
+    </div>
+
+    <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--navy);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Type de document</label>
+    <select id="doc-category" onchange="onDocCategoryChange()"
+            style="width:100%;padding:13px 14px;border:1.5px solid var(--gray-200);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;background:var(--gray-50);margin-bottom:16px;appearance:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 14px center;cursor:pointer">
+      <option value="">— Sélectionner —</option>
+      <optgroup label="Certifications ISO">
+        <option value="ISO 9001">ISO 9001 — Management de la qualité</option>
+        <option value="ISO 14001">ISO 14001 — Management environnemental</option>
+        <option value="ISO 45001">ISO 45001 — Santé & sécurité au travail</option>
+        <option value="ISO 50001">ISO 50001 — Management de l'énergie</option>
+        <option value="ISO 26000">ISO 26000 — Responsabilité sociétale</option>
+        <option value="ISO 37001">ISO 37001 — Anti-corruption</option>
+        <option value="ISO 27001">ISO 27001 — Sécurité de l'information</option>
+      </optgroup>
+      <optgroup label="Rapports ESG / extra-financiers">
+        <option value="Bilan Carbone / GES">Bilan Carbone / GES</option>
+        <option value="Rapport GRI">Rapport GRI</option>
+        <option value="Rapport SASB">Rapport SASB</option>
+        <option value="Rapport TCFD">Rapport TCFD (climat)</option>
+        <option value="Rapport RSE">Rapport RSE annuel</option>
+        <option value="DPEF">Déclaration de Performance Extra-Financière</option>
+      </optgroup>
+      <optgroup label="Politiques & chartes">
+        <option value="Charte éthique">Charte éthique / Code de conduite</option>
+        <option value="Politique ESG">Politique ESG</option>
+        <option value="Politique achats responsables">Politique achats responsables</option>
+        <option value="Politique diversité & inclusion">Politique diversité & inclusion</option>
+        <option value="Politique anti-corruption">Politique anti-corruption</option>
+      </optgroup>
+      <option value="Autre">Autre (préciser)</option>
+    </select>
+
+    <div id="doc-other-wrap" style="display:none;margin-bottom:16px">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--navy);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Préciser le nom du document</label>
+      <input id="doc-other-name" placeholder="Ex. Politique de gestion des déchets…"
+             style="width:100%;padding:13px 14px;border:1.5px solid var(--gray-200);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;background:var(--gray-50);outline:none" />
+    </div>
+
+    <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--navy);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">Fichier</label>
+    <label for="doc-file" id="doc-drop-label" style="display:block;padding:28px 16px;border:2px dashed var(--gray-300);border-radius:12px;text-align:center;cursor:pointer;transition:var(--transition);background:var(--gray-50)">
+      <div style="font-size:2rem;margin-bottom:6px">📎</div>
+      <div id="doc-file-name" style="font-size:0.88rem;color:var(--gray-600);font-weight:500">Cliquer pour sélectionner un fichier</div>
+      <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">PDF, DOCX, XLSX, PNG, JPG — max 10 Mo</div>
+    </label>
+    <input id="doc-file" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="display:none" onchange="onDocFileChange()" />
+
+    <div id="doc-error" style="color:#ef4444;font-size:0.82rem;margin-top:12px;display:none;text-align:center"></div>
+    <div id="doc-progress" style="color:var(--navy);font-size:0.82rem;margin-top:12px;display:none;text-align:center;font-weight:500">
+      <span class="badge-spinner" style="vertical-align:-2px;margin-right:6px"></span><span id="doc-progress-text">Upload en cours…</span>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closeDocModal()" class="btn-action btn-action-outline" style="flex:1">Annuler</button>
+      <button onclick="submitDoc()" class="btn-action btn-action-primary" style="flex:1" id="doc-submit-btn">Ajouter</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
