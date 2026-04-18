@@ -818,44 +818,77 @@
       </div>
 
       <h2>Connexion<br>sécurisée par <span>email</span></h2>
-      <p class="id-left-sub">Nous vous enverrons un code à 6 chiffres pour valider votre identité et vous permettre de reprendre votre évaluation à tout moment.</p>
+      <p class="id-left-sub">Première fois ? Recevez un code à 6 chiffres par email. Déjà un code ? Saisissez-le directement pour reprendre votre évaluation.</p>
 
-      <!-- Step 1 : email -->
-      <div id="auth-step-email" class="id-form-grid">
-        <div class="field-wrap span-2">
-          <label>Email professionnel</label>
-          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <input id="auth-email" type="email" placeholder="jean.dupont@entreprise.com" autocomplete="email" />
-        </div>
-        <button class="btn-start-form" id="auth-send-btn" onclick="sendOtp()">
-          <span id="auth-send-label">Recevoir le code</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <!-- Tabs -->
+      <div id="auth-tabs" style="display:flex;gap:0;margin-bottom:20px;border-bottom:1.5px solid var(--gray-200)">
+        <button type="button" id="tab-new" onclick="switchAuthTab('new')"
+                style="flex:1;padding:12px 8px;background:none;border:none;border-bottom:3px solid var(--navy);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;letter-spacing:0.02em;margin-bottom:-1.5px">
+          Nouveau code
         </button>
-        <div id="auth-email-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none;line-height:1.5"></div>
-        <div style="grid-column:1/-1;text-align:center;font-size:0.82rem;color:var(--gray-400);margin-top:-4px">
-          Déjà un code ? <a href="#" onclick="goToCodeStep();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Saisir mon code directement</a>
-        </div>
-        <span class="id-back-link" onclick="showPage('landing')">← Retour à l'accueil</span>
+        <button type="button" id="tab-existing" onclick="switchAuthTab('existing')"
+                style="flex:1;padding:12px 8px;background:none;border:none;border-bottom:3px solid transparent;color:var(--gray-400);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;letter-spacing:0.02em;margin-bottom:-1.5px">
+          J'ai déjà un code
+        </button>
       </div>
 
-      <!-- Step 2 : code -->
-      <div id="auth-step-code" class="id-form-grid" style="display:none">
-        <div class="field-wrap span-2">
-          <label>Code reçu par email <span id="auth-email-display" style="color:var(--gray-400);font-weight:500;text-transform:none;letter-spacing:0"></span></label>
-          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input id="auth-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
-                 placeholder="••••••"
-                 style="letter-spacing:10px;text-align:center;font-size:1.3rem;font-weight:700;padding-left:42px" />
+      <!-- Pane: new code (step email, then step code) -->
+      <div id="auth-pane-new">
+        <!-- Step 1 : email -->
+        <div id="auth-step-email" class="id-form-grid">
+          <div class="field-wrap span-2">
+            <label>Email professionnel</label>
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input id="auth-email" type="email" placeholder="jean.dupont@entreprise.com" autocomplete="email" />
+          </div>
+          <button class="btn-start-form" id="auth-send-btn" onclick="sendOtp()">
+            <span id="auth-send-label">Recevoir le code par email</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <div id="auth-email-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none;line-height:1.5"></div>
+          <span class="id-back-link" onclick="showPage('landing')">← Retour à l'accueil</span>
         </div>
-        <button class="btn-start-form" id="auth-verify-btn" onclick="verifyOtp()">
-          <span id="auth-verify-label">Vérifier et continuer</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-        <div id="auth-code-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none"></div>
-        <div style="grid-column:1/-1;text-align:center;font-size:0.82rem;color:var(--gray-400)">
-          Pas reçu ? <a href="#" onclick="sendOtp();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Renvoyer le code</a>
-          &nbsp;·&nbsp;
-          <a href="#" onclick="backToEmailStep();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Changer d'email</a>
+
+        <!-- Step 2 : code (après envoi) -->
+        <div id="auth-step-code" class="id-form-grid" style="display:none">
+          <div class="field-wrap span-2">
+            <label>Code reçu par email <span id="auth-email-display" style="color:var(--gray-400);font-weight:500;text-transform:none;letter-spacing:0"></span></label>
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input id="auth-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+                   placeholder="••••••"
+                   style="letter-spacing:10px;text-align:center;font-size:1.3rem;font-weight:700;padding-left:42px" />
+          </div>
+          <button class="btn-start-form" id="auth-verify-btn" onclick="verifyOtp()">
+            <span id="auth-verify-label">Vérifier et continuer</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <div id="auth-code-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none;line-height:1.5"></div>
+          <div style="grid-column:1/-1;text-align:center;font-size:0.82rem;color:var(--gray-400)">
+            Pas reçu ? <a href="#" onclick="sendOtp();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Renvoyer le code</a>
+            &nbsp;·&nbsp;
+            <a href="#" onclick="backToEmailStep();return false" style="color:var(--navy);font-weight:600;text-decoration:none">Changer d'email</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pane: existing code (direct) -->
+      <div id="auth-pane-existing" style="display:none">
+        <div class="id-form-grid">
+          <div class="field-wrap span-2">
+            <label>Code reçu par email</label>
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input id="auth-code-direct" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+                   placeholder="••••••"
+                   style="letter-spacing:10px;text-align:center;font-size:1.3rem;font-weight:700;padding-left:42px" />
+          </div>
+          <button class="btn-start-form" id="auth-direct-btn" onclick="verifyOtpDirect()">
+            <span id="auth-direct-label">Se connecter</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <div id="auth-direct-error" style="grid-column:1/-1;color:#ef4444;font-size:0.82rem;text-align:center;display:none;line-height:1.5"></div>
+          <div style="grid-column:1/-1;text-align:center;font-size:0.82rem;color:var(--gray-400)">
+            Pas de code ? <a href="#" onclick="switchAuthTab('new');return false" style="color:var(--navy);font-weight:600;text-decoration:none">En recevoir un par email</a>
+          </div>
         </div>
       </div>
 
@@ -2437,20 +2470,116 @@ function sendOtp() {
 }
 
 function goToCodeStep() {
-  const emailInput = document.getElementById('auth-email');
-  const email = (emailInput.value || '').trim().toLowerCase();
-  const errEl = document.getElementById('auth-email-error');
+  // Conservé pour compatibilité éventuelle — redirige vers le nouvel onglet "existant"
+  switchAuthTab('existing');
+}
+
+function switchAuthTab(which) {
+  const tabNew = document.getElementById('tab-new');
+  const tabExisting = document.getElementById('tab-existing');
+  const paneNew = document.getElementById('auth-pane-new');
+  const paneExisting = document.getElementById('auth-pane-existing');
+  if (!tabNew || !tabExisting) return;
+
+  if (which === 'existing') {
+    tabNew.style.borderBottomColor = 'transparent';
+    tabNew.style.color = 'var(--gray-400)';
+    tabNew.style.fontWeight = '600';
+    tabExisting.style.borderBottomColor = 'var(--navy)';
+    tabExisting.style.color = 'var(--navy)';
+    tabExisting.style.fontWeight = '700';
+    paneNew.style.display = 'none';
+    paneExisting.style.display = 'block';
+    setTimeout(function(){
+      const el = document.getElementById('auth-code-direct');
+      if (el) el.focus();
+    }, 100);
+  } else {
+    tabExisting.style.borderBottomColor = 'transparent';
+    tabExisting.style.color = 'var(--gray-400)';
+    tabExisting.style.fontWeight = '600';
+    tabNew.style.borderBottomColor = 'var(--navy)';
+    tabNew.style.color = 'var(--navy)';
+    tabNew.style.fontWeight = '700';
+    paneNew.style.display = 'block';
+    paneExisting.style.display = 'none';
+    // Reset étapes du pane "new"
+    document.getElementById('auth-step-email').style.display = 'grid';
+    document.getElementById('auth-step-code').style.display = 'none';
+    setTimeout(function(){
+      const el = document.getElementById('auth-email');
+      if (el && !el.value) el.focus();
+    }, 100);
+  }
+}
+
+function verifyOtpDirect() {
+  const codeInput = document.getElementById('auth-code-direct');
+  const code = (codeInput.value || '').trim();
+  const errEl = document.getElementById('auth-direct-error');
+  const btn = document.getElementById('auth-direct-btn');
+  const label = document.getElementById('auth-direct-label');
   errEl.style.display = 'none';
 
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    errEl.textContent = 'Renseignez d\'abord votre email ci-dessus, puis cliquez sur "Saisir mon code".';
-    errEl.style.display = 'block'; return;
+  if (!/^\d{6}$/.test(code)) {
+    errEl.textContent = 'Le code doit contenir 6 chiffres.'; errEl.style.display = 'block'; return;
   }
-  _authEmailPending = email;
-  document.getElementById('auth-email-display').textContent = '(' + email + ')';
-  document.getElementById('auth-step-email').style.display = 'none';
-  document.getElementById('auth-step-code').style.display = 'grid';
-  setTimeout(function(){ document.getElementById('auth-code').focus(); }, 100);
+  btn.disabled = true;
+  label.textContent = 'Vérification…';
+
+  // Vérif par code seul (les codes sont globalement uniques côté serveur)
+  biatApi('verify_otp', { code: code })
+    .then(function(r) {
+      btn.disabled = false;
+      label.textContent = 'Se connecter';
+      if (!r || !r.ok) {
+        const msg = r && r.error === 'expired'      ? 'Code expiré. Demandez un nouveau code par email.'
+                  : r && r.error === 'invalid_code' ? 'Code inconnu ou déjà utilisé. Vérifiez bien les 6 chiffres.'
+                  : 'Erreur : ' + ((r && r.error) || 'inconnue');
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+        return;
+      }
+      setSession({ token: r.token, email: r.email, createdAt: Date.now() });
+      afterAuthSuccess(r);
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      label.textContent = 'Se connecter';
+      errEl.innerHTML = 'Erreur : <span style="font-size:0.75rem;opacity:0.85">' + escapeHtml((err && err.message) || 'réseau') + '</span>';
+      errEl.style.display = 'block';
+    });
+}
+
+/** Logique commune post-authentification : charger draft + router */
+function afterAuthSuccess(r) {
+  loadDraftFromServer().finally(function() {
+    if (state.submittedAt) {
+      hydrateUserInfoFromState();
+      hydrateAnswersFromState();
+      if (typeof questions !== 'undefined' && questions.length) {
+        buildProgressBar(); buildSidebar(); buildQuestionnaire();
+        updateProgress(); updateSidebar();
+        const scores = computeScores();
+        generateDashboardFromScores(scores);
+        return;
+      }
+    }
+    showPage('identification');
+    const fEmail = document.getElementById('f-email');
+    if (fEmail) {
+      fEmail.value = r.email;
+      fEmail.readOnly = true;
+      fEmail.style.background = '#f3f4f6';
+      fEmail.style.cursor = 'not-allowed';
+    }
+    if (state.prenom)  document.getElementById('f-prenom').value  = state.prenom;
+    if (state.nom)     document.getElementById('f-nom').value     = state.nom;
+    if (state.company) document.getElementById('f-company').value = state.company;
+    if (state.sector)  document.getElementById('f-sector').value  = state.sector;
+    if (state.size)    document.getElementById('f-size').value    = state.size;
+    if (state.poste)   document.getElementById('f-poste').value   = state.poste;
+  });
 }
 
 function verifyOtp() {
@@ -2472,44 +2601,15 @@ function verifyOtp() {
       btn.disabled = false;
       label.textContent = 'Vérifier et continuer';
       if (!r || !r.ok) {
-        const msg = r && r.error === 'expired'      ? 'Code expiré, cliquez sur "Renvoyer le code".'
-                  : r && r.error === 'invalid_code' ? 'Code incorrect. Vérifiez et réessayez.'
+        const msg = r && r.error === 'expired'        ? 'Code expiré, cliquez sur "Renvoyer le code".'
+                  : r && r.error === 'invalid_code'   ? 'Code incorrect. Vérifiez et réessayez.'
+                  : r && r.error === 'email_mismatch' ? 'Ce code n\'appartient pas à cet email.'
                   : 'Erreur de vérification.';
         errEl.textContent = msg; errEl.style.display = 'block';
         return;
       }
       setSession({ token: r.token, email: r.email, createdAt: Date.now() });
-      // Une fois authentifié : on charge le draft serveur puis on passe à l'identification
-      loadDraftFromServer().finally(function() {
-        // Si le draft indique que déjà soumis, on bascule sur le dashboard en mode consultation
-        if (state.submittedAt) {
-          hydrateUserInfoFromState();
-          hydrateAnswersFromState();
-          if (typeof questions !== 'undefined' && questions.length) {
-            buildProgressBar(); buildSidebar(); buildQuestionnaire();
-            updateProgress(); updateSidebar();
-            const scores = computeScores();
-            generateDashboardFromScores(scores);
-            return;
-          }
-        }
-        showPage('identification');
-        // Pré-remplir l'email (verrouillé)
-        const fEmail = document.getElementById('f-email');
-        if (fEmail) {
-          fEmail.value = r.email;
-          fEmail.readOnly = true;
-          fEmail.style.background = '#f3f4f6';
-          fEmail.style.cursor = 'not-allowed';
-        }
-        // Pré-remplir les autres champs si un draft existe
-        if (state.prenom)  document.getElementById('f-prenom').value  = state.prenom;
-        if (state.nom)     document.getElementById('f-nom').value     = state.nom;
-        if (state.company) document.getElementById('f-company').value = state.company;
-        if (state.sector)  document.getElementById('f-sector').value  = state.sector;
-        if (state.size)    document.getElementById('f-size').value    = state.size;
-        if (state.poste)   document.getElementById('f-poste').value   = state.poste;
-      });
+      afterAuthSuccess(r);
     })
     .catch(function(err) {
       btn.disabled = false;
