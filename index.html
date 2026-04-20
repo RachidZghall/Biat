@@ -451,9 +451,8 @@
   .question-section {
     display: flex; align-items: center; justify-content: center;
     padding: 40px 32px; position: relative;
-    transition: opacity 0.4s ease;
+    opacity: 0.5; transition: opacity 0.4s ease;
   }
-  .question-section { opacity: 0.5; transition: opacity 0.4s ease; }
   .question-section:has(.section-header-block) { opacity: 1; }
 
   .section-header-block {
@@ -1118,6 +1117,10 @@
       <div class="dash-widget"><div class="widget-title"><div class="widget-title-dot"></div>Comparaison sectorielle</div><div id="sector-comparison-content"></div></div>
     </div>
     <div class="dash-widget" style="margin-bottom:28px"><div class="widget-title"><div class="widget-title-dot"></div>Recommandations prioritaires</div><div class="reco-list" id="reco-list"></div></div>
+    <div class="dash-widget" id="dash-docs-widget" style="margin-bottom:28px;display:none">
+      <div class="widget-title"><div class="widget-title-dot"></div>Documents justificatifs joints</div>
+      <div id="dash-docs-list"></div>
+    </div>
   </div>
 </div>
 
@@ -2300,6 +2303,7 @@ function generateDashboard() {
   buildSectorComparison(scores, benchmark);
   setTimeout(() => buildRadarChart(scores, benchmark), 500);
   buildRecommendations(scores);
+  buildDashboardDocs();
   showPage('dashboard');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -2369,6 +2373,28 @@ function buildRecommendations(scores) {
   if (recos.length === 0) recos.push({ color: '#3aaa6e', icon: '🏆', text: '<strong>Félicitations !</strong> Votre profil ESG est solide. Envisagez une certification B Corp ou un engagement SBTi.' });
   recos.push({ color: '#264676', icon: '📊', text: "<strong>Démarche globale :</strong> Nommez un référent RSE/ESG dédié et planifiez une revue annuelle de vos indicateurs extra-financiers." });
   list.innerHTML = recos.map(r => `<div class="reco-item" style="border-left-color:${r.color};background:${r.color}12"><div class="reco-icon">${r.icon}</div><div class="reco-text">${r.text}</div></div>`).join('');
+}
+
+function buildDashboardDocs() {
+  const widget = document.getElementById('dash-docs-widget');
+  const list = document.getElementById('dash-docs-list');
+  if (!widget || !list) return;
+  const docs = state.documents || [];
+  if (docs.length === 0) {
+    widget.style.display = 'none';
+    return;
+  }
+  widget.style.display = 'block';
+  list.innerHTML = docs.map(function(d) {
+    return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--gray-50);border-radius:12px;margin-bottom:8px;border:1px solid var(--gray-200)">' +
+           '<div style="font-size:1.4rem">📄</div>' +
+           '<div style="flex:1;min-width:0">' +
+             '<div style="font-size:0.9rem;font-weight:600;color:var(--navy-dark)">' + escapeHtml(d.category || d.name) + '</div>' +
+             '<div style="font-size:0.78rem;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(d.filename) + '</div>' +
+           '</div>' +
+           '<a href="' + d.url + '" target="_blank" rel="noopener" style="color:var(--navy);font-size:0.82rem;font-weight:600;text-decoration:none;padding:6px 14px;border:1.5px solid var(--navy);border-radius:99px">Ouvrir</a>' +
+           '</div>';
+  }).join('');
 }
 
 function resetQuestionnaire() {
@@ -2468,7 +2494,9 @@ function sendOtp() {
       btn.disabled = false;
       label.textContent = 'Recevoir le code';
       if (!r || !r.ok) {
-        const msg = (r && r.error === 'invalid_email') ? 'Email invalide.' : ('Erreur serveur : ' + ((r && r.error) || 'inconnue'));
+        const msg = r && r.error === 'invalid_email'  ? 'Email invalide.'
+                  : r && r.error === 'rate_limited'   ? 'Trop de demandes. Patientez une heure avant de redemander un code.'
+                  : 'Erreur serveur : ' + ((r && r.error) || 'inconnue');
         throw new Error(msg);
       }
       _authEmailPending = email;
@@ -2486,11 +2514,6 @@ function sendOtp() {
                         "</span>";
       errEl.style.display = 'block';
     });
-}
-
-function goToCodeStep() {
-  // Conservé pour compatibilité éventuelle — redirige vers le nouvel onglet "existant"
-  switchAuthTab('existing');
 }
 
 function switchAuthTab(which) {
@@ -2749,7 +2772,7 @@ function saveDraftDebounced() {
     biatApi('save_draft', { token: ses.token, payload: state })
       .then(function(r) {
         if (r && r.error === 'already_submitted') {
-          console.warn('[BIAT] Draft locked (already submitted).');
+          // Draft verrouillé — l'utilisateur sera redirigé si besoin
         }
       })
       .catch(function() { /* silent — sera retenté au prochain changement */ });
@@ -3011,7 +3034,6 @@ function updateGsBanner() {
 
 async function submitToGoogleSheets(scores) {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'VOTRE_URL_ICI') {
-    console.warn('[ESG] APPS_SCRIPT_URL non configurée — soumission ignorée.');
     const banner = document.getElementById('gs-config-banner');
     if (banner) { banner.classList.remove('connected'); banner.classList.add('error'); }
     updateGsBanner();
@@ -3027,23 +3049,14 @@ async function submitToGoogleSheets(scores) {
 
   setGsStatus('pending', 'Envoi vers Google Sheets…');
   const payload = buildGSPayload(scores);
-  // Ajouter les documents et le statut de soumission dans le payload
   payload.documents = state.documents || [];
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      // text/plain pour éviter le preflight CORS (Apps Script bloque les headers custom)
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'submit_final',
-        token: ses.token,
-        payload: payload
-      })
-    });
-    const r = await res.json();
+    const r = await biatApi('submit_final', { token: ses.token, payload: payload });
     if (!r || !r.ok) {
-      const msg = (r && r.error === 'invalid_session') ? 'Session expirée' : ('Erreur : ' + ((r && r.error) || 'inconnue'));
+      const msg = r && r.error === 'invalid_session' ? 'Session expirée'
+                : r && r.error === 'already_submitted' ? 'Dossier déjà soumis'
+                : 'Erreur : ' + ((r && r.error) || 'inconnue');
       setGsStatus('error', msg);
       const banner = document.getElementById('gs-config-banner');
       if (banner) {
@@ -3058,20 +3071,18 @@ async function submitToGoogleSheets(scores) {
     if (banner) {
       banner.classList.add('connected');
       document.getElementById('gs-banner-title').innerText = '✅ Données envoyées avec succès';
-      document.getElementById('gs-banner-sub').innerText = 'Résultats sauvegardés dans Google Sheets — Notification envoyée à ' + NOTIFICATION_EMAILS;
+      document.getElementById('gs-banner-sub').innerText = 'Résultats sauvegardés dans Google Sheets — Notification envoyée aux destinataires BIAT';
     }
     state.submittedAt = new Date().toISOString();
     saveLocalDraft();
-    console.log('[ESG] Soumission réussie :', payload.entreprise, '— Score :', payload.score_global);
   } catch (err) {
-    setGsStatus('error', 'Erreur réseau — vérifiez votre connexion');
+    setGsStatus('error', 'Erreur — ' + ((err && err.message) || 'réseau'));
     const banner = document.getElementById('gs-config-banner');
     if (banner) {
       banner.classList.add('error');
       document.getElementById('gs-banner-title').innerText = '⚠️ Erreur d\'envoi';
-      document.getElementById('gs-banner-sub').innerText = err.message;
+      document.getElementById('gs-banner-sub').innerText = (err && err.message) || '';
     }
-    console.error('[ESG] Erreur :', err);
   }
 }
 // ════════════════════════════════════════════════════════
